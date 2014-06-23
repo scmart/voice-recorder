@@ -115,7 +115,9 @@
 			var input = this._native_audio_context.createMediaStreamSource(stream);
 			//input.connect(audio_context.destination);
 			this._native = new Recorder(input);
-		}, this), function(e) {console.log(e)});
+		}, this), function(e) {
+			console.log(e);
+		});
 	};
 
 	VoiceRecorder.prototype.playAudio(data) {
