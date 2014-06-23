@@ -109,13 +109,28 @@
 	VoiceRecorder.prototype._setupNative = function() {
 		navigator.getUserMedia({audio: true}, _.bind(function(stream) {
 			//setup native recording
-			var audio_context = new AudioContext();
-			
-			var input = audio_context.createMediaStreamSource(stream);
+			if (!this._native_audio_context) {
+				this._native_audio_context = new AudioContext();
+			}
+			var input = this._native_audio_context.createMediaStreamSource(stream);
 			//input.connect(audio_context.destination);
-			
 			this._native = new Recorder(input);
 		}, this));
+	};
+
+	VoiceRecorder.prototype.playAudio(data) {
+		if (this._useFlash) {
+		} else {
+			this._native.playWAV(this._native_audio_context, data, 0);
+		}
+	};
+
+	VoiceRecorder.prototype.pauseAudio() {
+		if (this._useFlash) {
+		} else {
+			var temp = this._native.pauseWAV(this._native_audio_context);
+		}
+		console.log(temp);
 	};
 
 	VoiceRecorder.prototype._decode64 = function() {
@@ -133,7 +148,11 @@
 					Wami.startRecording("",
 										Wami.nameCallback(this._callbacks.onStart),
 										Wami.nameCallback(_.bind(function(data) {
-											this._callbacks.onFinish(data[0]);
+											// setup conversion to wav file here
+											var audioObj = {};
+											audioObj.data = data[0];
+											audioObj.length = 500;
+											this._callbacks.onFinish(audioObj);
 										},this)),
 										Wami.nameCallback(this._callbacks.onError)
 									   );
@@ -159,7 +178,10 @@
 				this._native.stop();
 				this._recording = false;
 				this._native.exportWAV(_.bind(function(data) {
-					this._callbacks.onFinish(data);
+					var audioObj = {};
+					audioObj.data = data;
+					audioObj.length = 500;
+					this._callbacks.onFinish(audioObj);
 					this._native.clear();
 				}, this));
 			}

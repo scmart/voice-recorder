@@ -208,6 +208,42 @@
 			});
 		}
 
+		this.playBuffer = function() {
+			this.getBuffer(function(buffer) {
+				var newSource = audioContext.createBufferSource();
+				var newBuffer = audioContext.createBuffer( 2, buffers[0].length, audioContext.sampleRate );
+				newBuffer.getChannelData(0).set(buffers[0]);
+				newBuffer.getChannelData(1).set(buffers[1]);
+				newSource.buffer = newBuffer;
+				
+				newSource.connect( audioContext.destination );
+				newSource.start(0);
+			});
+		}
+
+		this._playingAudioSource;
+
+		this.playWAV = function(context, wav, loc) {
+			loc = loc || 0;
+			var newSource = context.createBufferSource();
+			newSource.buffer = wav;
+			if (!newSource.start)
+				newSource.start = newSource.noteOn;
+			newSource.start(loc);
+			this._playingAudioSource = newSource;
+		}
+
+		this.pauseWAV = function(context) {
+			var curSource = this._playingaudioSource;
+			var time = context.currentTime;
+			if (curSource) {
+				if (!curSource.stop)
+					curSource.stop = curSource.noteOff;
+				curSource.stop();
+				return time;
+			}
+		}
+
 		worker.onmessage = function(e){
 			var blob = e.data;
 			currCallback(blob);
