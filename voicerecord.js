@@ -120,14 +120,14 @@
 		});
 	};
 
-	VoiceRecorder.prototype.playAudio(data) {
+	VoiceRecorder.prototype.playAudio = function(data) {
 		if (this._useFlash) {
 		} else {
 			this._native.playWAV(this._native_audio_context, data, 0);
 		}
 	};
 
-	VoiceRecorder.prototype.pauseAudio() {
+	VoiceRecorder.prototype.pauseAudio = function() {
 		if (this._useFlash) {
 		} else {
 			var temp = this._native.pauseWAV(this._native_audio_context);
