@@ -208,7 +208,8 @@
 			});
 		}
 
-		this.playBuffer = function() {
+		this.playBuffer = function(loc) {
+			loc = loc || 0;
 			this.getBuffer(function(buffer) {
 				var newSource = audioContext.createBufferSource();
 				var newBuffer = audioContext.createBuffer( 2, buffers[0].length, audioContext.sampleRate );
@@ -217,8 +218,21 @@
 				newSource.buffer = newBuffer;
 				
 				newSource.connect( audioContext.destination );
-				newSource.start(0);
+				if (!newSource.start)
+					newSource.start = newSource.noteOn;
+				newSource.start(loc);
+				this._currentBufferSource;
 			});
+		}
+
+		this.pauseBuffer = function() {
+			var source = this._currentBufferSource;
+			if (source) {
+				if (!source.stop)
+					source.stop = source.noteOff;
+				source.stop();
+				this._currentBufferSource = null;
+			}
 		}
 
 		this._playingAudioSource;
@@ -226,9 +240,10 @@
 		this.playWAV = function(context, wav, loc) {
 			loc = loc || 0;
 			var newSource = context.createBufferSource();
-			newSource.buffer = wav;
+			newSource.buffer = context.createBuffer(1,wav,context.sampleRate);
 			if (!newSource.start)
 				newSource.start = newSource.noteOn;
+			newSource.connect(context.destination);
 			newSource.start(loc);
 			this._playingAudioSource = newSource;
 		}

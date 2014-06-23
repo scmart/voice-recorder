@@ -162,9 +162,12 @@
 				}
 			} else {
 				if (this._native) {
+					this._native.clear();
 					this._native.record();
 					this._recording = true;
-					this._callbacks.onStart();
+					if (this._callbacks.onStart) {
+						this._callbacks.onStart();
+					}
 				}
 			}
 		}
@@ -184,7 +187,6 @@
 					audioObj.data = data;
 					audioObj.length = 500;
 					this._callbacks.onFinish(audioObj);
-					this._native.clear();
 				}, this));
 			}
 		}
