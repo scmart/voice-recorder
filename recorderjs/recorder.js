@@ -208,21 +208,26 @@
 			});
 		}
 
-		this.playBuffer = function(loc) {
+		this.playBuffer = function(loc, onEnd) {
 			loc = loc || 0;
-			this.getBuffer(function(buffer) {
-				var newSource = audioContext.createBufferSource();
+			var audioContext = new AudioContext();
+			var newSource = audioContext.createBufferSource();
+			this._currentBufferSource = newSource;
+
+			this.getBuffer(_.bind(function(buffers) {
 				var newBuffer = audioContext.createBuffer( 2, buffers[0].length, audioContext.sampleRate );
 				newBuffer.getChannelData(0).set(buffers[0]);
 				newBuffer.getChannelData(1).set(buffers[1]);
 				newSource.buffer = newBuffer;
-				
+
+				newSource.onended = onEnd;
 				newSource.connect( audioContext.destination );
 				if (!newSource.start)
 					newSource.start = newSource.noteOn;
 				newSource.start(loc);
-				this._currentBufferSource;
-			});
+				this._currentBufferSource = newSource;
+				console.log(newSource);
+			}), this);
 		}
 
 		this.pauseBuffer = function() {
@@ -230,24 +235,31 @@
 			if (source) {
 				if (!source.stop)
 					source.stop = source.noteOff;
-				source.stop();
-				this._currentBufferSource = null;
+				console.log(source.stop());
+				//this._currentBufferSource = null;
 			}
+			console.log(source);
 		}
 
 		this._playingAudioSource;
 
 		this.playWAV = function(context, wav, loc) {
 			loc = loc || 0;
-			var newSource = context.createBufferSource();
-			newSource.buffer = context.createBuffer(1,wav,context.sampleRate);
-			if (!newSource.start)
-				newSource.start = newSource.noteOn;
-			newSource.connect(context.destination);
-			newSource.start(loc);
-			this._playingAudioSource = newSource;
+			if (this._playingAudioSource) {
+				this._playingAudioSource.start(loc);
+			} else {
+				var newSource = context.createBufferSource();
+				context.decodeAudioData(window.URL.createObjectURL(wav), _.bind(function(buffer) {
+					newSource.buffer = buffer;
+					if (!newSource.start)
+						newSource.start = newSource.noteOn;
+					newSource.connect(context.destination);
+					newSource.start(loc);
+					this._playingAudioSource = newSource;
+				}, this));
+			}
 		}
-
+	
 		this.pauseWAV = function(context) {
 			var curSource = this._playingaudioSource;
 			var time = context.currentTime;

@@ -120,17 +120,17 @@
 		});
 	};
 
-	VoiceRecorder.prototype.playAudio = function(data) {
+	VoiceRecorder.prototype.playBuffer = function(loc, onEnd) {
 		if (this._useFlash) {
 		} else {
-			this._native.playWAV(this._native_audio_context, data, 0);
+			this._native.playBuffer(loc, onEnd);
 		}
 	};
 
-	VoiceRecorder.prototype.pauseAudio = function() {
+	VoiceRecorder.prototype.pauseBuffer = function() {
 		if (this._useFlash) {
 		} else {
-			var temp = this._native.pauseWAV(this._native_audio_context);
+			var temp = this._native.pauseBuffer();
 		}
 		console.log(temp);
 	};
@@ -184,9 +184,15 @@
 				this._recording = false;
 				this._native.exportWAV(_.bind(function(data) {
 					var audioObj = {};
-					audioObj.data = data;
 					audioObj.length = 500;
-					this._callbacks.onFinish(audioObj);
+					var reader = new FileReader();
+					var self = this;
+					reader.addEventListener("loadend", function() {
+						// want to remove this -- data:audio/wav;base64
+						audioObj.data = reader.result.slice(22);
+						self._callbacks.onFinish(audioObj);
+					});
+					reader.readAsDataURL(data);
 				}, this));
 			}
 		}
