@@ -28,7 +28,7 @@
 
 		//test for and shim for webkit native audio support
 		window.AudioContext = window.AudioContext || window.webkitAudioContext;
-		navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia navigator.mozGetUserMedia || navigator.msGetUserMedia;
+		navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
  
 		if (window.AudioContext && navigator.getUserMedia) {
 			useFlash = false;
