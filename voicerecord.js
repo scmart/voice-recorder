@@ -122,13 +122,13 @@
 			var input = this._native_audio_context.createMediaStreamSource(stream);
 			//input.connect(audio_context.destination);
 			this._native = new Recorder(input);
-		}, this), function(e) {
+		}, this), _.bind(function(e) {
 			//denied
 			if (this._callbacks.onAccessDialogDenied) {
 				this._callbacks.onAccessDialogDenied();
 			}
 			console.log(e);
-		});
+		}, this));
 	};
 
 	VoiceRecorder.prototype.playBuffer = function(loc, onEnd) {
