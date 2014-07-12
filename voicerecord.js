@@ -11,7 +11,7 @@
 		};
 
 		this._callbacks = {
-			onReady: null,
+			onFlashReady: null,
 			onStart: null,
 			onFinish: null,
 			onError: null
@@ -63,8 +63,8 @@
 				this._sampleRate = params.sampleRate;
 				this._flashParams.sampleRate = params.sampleRate;
 			}
-			if (params.onReady) {
-				this._callbacks.onReady = params.onReady;
+			if (params.onFlashReady) {
+				this._callbacks.onFlashReady = params.onFlashReady;
 			}
 		}
 
@@ -86,21 +86,28 @@
 					this._flash.setSettings(this._flashParams);
 					this._useFlash = true;
 					this._flashReady = true;
-					if (this._callbacks.onReady) {
-						this._callbacks.onReady();
+					if (this._callbacks.onFlashReady) {
+						this._callbacks.onFlashReady();
+					}
+				}, this);
+
+				var showingSecurity = _.bind(function() {
+					if (this._callbacks.onFlashDialogOpened) {
+						this._callbacks.onFlashDialogOpened();
 					}
 				}, this);
 				
 				this._flash.setup(_.extend(this._flashSetupParams, {
-					onReady: postSetup
+					onReady: postSetup,
+					onShowSecurity: showingSecurity
 				}));
 								  
 			} else {
 				// first time setup for native audio
 				this._setupNative();
 				this._useFlash = false;
-				if (this._callbacks.onReady) {
-					this._callbacks.onReady();
+				if (this._callbacks.onFlashReady) {
+					this._callbacks.onFlashReady();
 				}
 			}
 		}
@@ -133,6 +140,7 @@
 
 	VoiceRecorder.prototype.playBuffer = function(loc, onEnd) {
 		if (this._useFlash) {
+			this._flash.startPlaying();
 		} else {
 			this._native.playBuffer(loc, onEnd);
 		}
@@ -140,6 +148,7 @@
 
 	VoiceRecorder.prototype.pauseBuffer = function() {
 		if (this._useFlash) {
+			this._flash.stopPlaying();
 		} else {
 			var temp = this._native.pauseBuffer();
 		}
