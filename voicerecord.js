@@ -122,6 +122,7 @@
 			if (this._callbacks.onAccessDialogAccepted) {
 				this._callbacks.onAccessDialogAccepted();
 			}
+			this._native_stream = stream;
 			//setup native recording
 			if (!this._native_audio_context) {
 				this._native_audio_context = new AudioContext();
@@ -138,25 +139,10 @@
 		}, this));
 	};
 
-	VoiceRecorder.prototype.playBuffer = function(loc, onEnd) {
-		if (this._useFlash) {
-			this._flash.startPlaying();
-		} else {
-			this._native.playBuffer(loc, onEnd);
+	VoiceRecorder.prototype.cleanup = function() {
+		if (this._native._native_stream) {
+			this._native._native_stream.stop();
 		}
-	};
-
-	VoiceRecorder.prototype.pauseBuffer = function() {
-		if (this._useFlash) {
-			this._flash.stopPlaying();
-		} else {
-			var temp = this._native.pauseBuffer();
-		}
-		console.log(temp);
-	};
-
-	VoiceRecorder.prototype._decode64 = function() {
-		
 	};
 
 	VoiceRecorder.prototype.start = function(callbacks) {
@@ -172,7 +158,7 @@
 										Wami.nameCallback(_.bind(function(data) {
 											// setup conversion to wav file here
 											var audioObj = {};
-											audioObj.data = data[0];
+											audioObj.data = "data:audio/wav;base64," + data[0];
 											audioObj.length = 500;
 											this._callbacks.onFinish(audioObj);
 										},this)),
@@ -208,8 +194,7 @@
 					var reader = new FileReader();
 					var self = this;
 					reader.addEventListener("loadend", function() {
-						// want to remove this -- data:audio/wav;base64
-						audioObj.data = reader.result.slice(22);
+						audioObj.data = reader.result;
 						self._callbacks.onFinish(audioObj);
 					});
 					reader.readAsDataURL(data);
