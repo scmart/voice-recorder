@@ -106,9 +106,6 @@
 				// first time setup for native audio
 				this._setupNative();
 				this._useFlash = false;
-				if (this._callbacks.onFlashReady) {
-					this._callbacks.onFlashReady();
-				}
 			}
 		}
 	};
