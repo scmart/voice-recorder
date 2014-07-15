@@ -140,8 +140,8 @@
 	};
 
 	VoiceRecorder.prototype.cleanup = function() {
-		if (this._native._native_stream) {
-			this._native._native_stream.stop();
+		if (this._native_stream) {
+			this._native_stream.stop();
 		}
 	};
 
