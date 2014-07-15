@@ -73,7 +73,7 @@
 				//switch to not using flash
 				//in case we are switching from flash to not
 				this._flashReady = false;
-				this._flash.cleanup();
+				this.cleanup();
 
 				this._useFlash = false;
 
@@ -142,6 +142,10 @@
 	VoiceRecorder.prototype.cleanup = function() {
 		if (this._native_stream) {
 			this._native_stream.stop();
+			this._native_stream = null;
+		}
+		if (this._useFlash) {
+			this._flash.cleanup(this._flashSetupParams.id);
 		}
 	};
 

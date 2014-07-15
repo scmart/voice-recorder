@@ -23,6 +23,10 @@
 		return named;
 	}
 
+	Wami.cleanup = function(id) {
+		Wami.swfobject.removeSWF(id);
+	}
+
 	// This method ensures that a WAMI recorder is operational, and that
 	// the following API is available in the Wami namespace. All functions
 	// must be named (i.e. cannot be anonymous).
@@ -198,6 +202,7 @@
 			// Without this line, Firefox has a dotted outline of the flash
 			Wami.swfobject.createCSS("#" + id, "outline:none");
 		}
+
 
 		// To check if the microphone settings were 'remembered', we
 		// must actually embed an entirely new Wami client and check
